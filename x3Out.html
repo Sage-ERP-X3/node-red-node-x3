@@ -26,44 +26,64 @@
         </select>
     </div>
     <div class="form-row">
-        <label for="node-input-baseUrl"><i class="fa fa-globe"></i> <span data-i18n="httpin.label.baseUrl"></span></label>
-        <input type="text" id="node-input-baseUrl" placeholder="http://">
+        <label for="node-input-config"><i class="fa fa-globe"></i> <span data-i18n="mqtt.label.config"></span></label>
+        <input type="text" id="node-input-config">
     </div>
-      <div class="form-row">
-        <label for="node-input-endpoint"><span data-i18n="httpin.label.endpoint"></span></label>
-        <input type="text" id="node-input-endpoint" placeholder="http://">
-    </div>
-      <div class="form-row">
+
+     <div class="form-row">
         <label for="node-input-represenation"><><span data-i18n="httpin.label.representation"></span></label>
         <input type="text" id="node-input-representation" >
     </div>
-    <div class="form-row">
-        <label>&nbsp;</label>
-        <input type="checkbox" id="node-input-useAuth" style="display: inline-block; width: auto; vertical-align: top;">
-        <label for="node-input-useAuth" style="width: 70%;"><span data-i18n="httpin.basicauth"></span></label>
-    </div>
-    <div class="form-row node-input-useAuth-row">
-        <label for="node-input-user"><i class="fa fa-user"></i> <span data-i18n="common.label.username"></span></label>
-        <input type="text" id="node-input-user">
-    </div>
-    <div class="form-row node-input-useAuth-row">
-        <label for="node-input-password"><i class="fa fa-lock"></i> <span data-i18n="common.label.password"></span></label>
-        <input type="password" id="node-input-password">
-    </div>
-    <div class="form-row">
-        <label for="node-input-ret"><i class="fa fa-arrow-left"></i> <span data-i18n="httpin.label.return"></span></label>
-        <select type="text" id="node-input-ret" style="width:72%;">
-        <option value="txt" data-i18n="httpin.utf8"></option>
-        <option value="bin" data-i18n="httpin.binary"></option>
-        <option value="obj" data-i18n="httpin.json"></option>
-        </select>
-    </div>
+
+
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
         <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
     </div>
     <div class="form-tips" id="tip-json" hidden><span data-i18n="httpin.tip.req"></span></div>
 </script>
+
+<script type="text/x-red" data-template-name="x3 config">
+    <div class="form-row node-input-config">
+        <div class="form-row ">
+            <label for="node-input-method"><i class="fa fa-tasks"></i> <span data-i18n="httpin.label.method"></span></label>
+            <select type="text" id="node-input-method" style="width:72%;">
+            <option value="GET">GET</option>
+            <option value="POST">POST</option>
+            <option value="PUT">PUT</option>
+            <option value="DELETE">DELETE</option>
+            <option value="use" data-i18n="httpin.setby"></option>
+            </select>
+        </div>
+        <div class="form-row">
+            <label for="node-input-baseUrl"><i class="fa fa-globe"></i> <span data-i18n="httpin.label.baseUrl"></span></label>
+            <input type="text" id="node-input-baseUrl" placeholder="http://">
+        </div>
+          <div class="form-row">
+            <label for="node-input-endpoint"><span data-i18n="httpin.label.endpoint"></span></label>
+            <input type="text" id="node-input-endpoint" placeholder="http://">
+        </div>
+          <div class="form-row">
+            <label for="node-input-represenation"><><span data-i18n="httpin.label.representation"></span></label>
+            <input type="text" id="node-input-representation" >
+        </div>
+        <div class="form-row node-input-useAuth-row">
+            <label for="node-input-user"><i class="fa fa-user"></i> <span data-i18n="common.label.username"></span></label>
+            <input type="text" id="node-input-user">
+        </div>
+        <div class="form-row node-input-useAuth-row">
+            <label for="node-input-password"><i class="fa fa-lock"></i> <span data-i18n="common.label.password"></span></label>
+            <input type="password" id="node-input-password">
+        </div>
+
+        <div class="form-row">
+            <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
+            <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
+        </div>
+        <div class="form-tips" id="tip-json" hidden><span data-i18n="httpin.tip.req"></span></div>
+    </div>
+</script>
+
 
 <script type="text/x-red" data-help-name="x3 out">
     <p>Provides a node for making x3 outs.</p>
@@ -92,24 +112,17 @@
 
 <script type="text/javascript">
     RED.nodes.registerType('x3 out',{
-        category: 'function',
+        category: 'output',
         color:"rgb(231, 231, 174)",
         defaults: {
             name: {value:""},
             method:{value:"GET"},
-            ret: {value:"txt"},
-            baseUrl:{value:""},
-            endpoint:{value:""},
             representation:{value:""}
             //user -> credentials
             //pass -> credentials
         },
-        credentials: {
-            user: {type:"text"},
-            password: {type: "password"}
-        },
         inputs:1,
-        outputs:1,
+        outputs:0,
         icon: "white-globe.png",
         label: function() {
             return this.name||this._("httpin.httpreq");
@@ -118,31 +131,36 @@
             return this.name?"node_label_italic":"";
         },
         oneditprepare: function() {
-            if (this.credentials.user || this.credentials.has_password) {
-                $('#node-input-useAuth').prop('checked', true);
-                $(".node-input-useAuth-row").show();
-            } else {
-                $('#node-input-useAuth').prop('checked', false);
-                $(".node-input-useAuth-row").hide();
-            }
 
-            $("#node-input-useAuth").change(function() {
-                if ($(this).is(":checked")) {
-                    $(".node-input-useAuth-row").show();
-                } else {
-                    $(".node-input-useAuth-row").hide();
-                    $('#node-input-user').val('');
-                    $('#node-input-password').val('');
-                }
-            });
+        }
+    });
+</script>
 
-            $("#node-input-ret").change(function() {
-                if ($("#node-input-ret").val() === "obj") {
-                    $("#tip-json").show();
-                } else {
-                    $("#tip-json").hide();
-                }
-            });
+
+
+<script type="text/javascript">
+    RED.nodes.registerType('x3 config',{
+        category: 'config',
+        color:"rgb(231, 231, 174)",
+        defaults: {
+            name: {value:""},
+            baseUrl : {value:""},
+            endpoint : {value:""}
+            //user -> credentials
+            //pass -> credentials
+        },
+        credentials: {
+            user: {type:"text"},
+            password: {type: "password"}
+        },
+        label: function() {
+            return this.name||this._("httpin.httpconfig");
+        },
+        labelStyle: function() {
+            return this.name?"node_label_italic":"";
+        },
+        oneditprepare: function() {
+
         }
     });
 </script>

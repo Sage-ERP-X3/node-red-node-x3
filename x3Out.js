@@ -22,16 +22,38 @@ module.exports = function(RED) {
     var mustache = require("mustache");
     var querystring = require("querystring");
 
-    function HTTPRequest(n) {
+
+
+    function X3Config(n){
+        RED.nodes.createNode(this,n);
+
+        this.url = n.url;
+        this.endpoint = n.endpoint;
+        this.credentials = n.credentials;
+    }
+    
+    function X3Out(n) {
 
         RED.nodes.createNode(this,n);
-        var url = n.url;
+        this.x3Config = RED.nodes.getNode(n.x3Config);
+
+        var url = x3Config.url;
+        var endpoint = x3Config.endpoint;
+        var credential = x3Config.credentials;
         var representation = n.representation;
-        var endpoint = n.endpoint;
 
         var nodeUrl = url+"/x3/erp/"+endpoint+"/"+representation;
+
         var isTemplatedUrl = (nodeUrl||"").indexOf("{{") != -1;
         var nodeMethod = n.method || "GET";
+
+        // add the key if we want to read or update
+        if( nodeMethod === "GET" || nodeMethod === "PUT" )
+            nodeUrl += "("+n.key+")?representation="+representation+"&"+(nodeMethod === "PUT"  ? "$details": "$edit");
+        else if( nodeMethod === "POST" ){
+            nodeUrl += "?representation="+representation;
+
+        }
         this.ret = n.ret || "txt";
         if (RED.settings.httpRequestTimeout) { this.reqTimeout = parseInt(RED.settings.httpRequestTimeout) || 120000; }
         else { this.reqTimeout = 120000; }
@@ -85,8 +107,8 @@ module.exports = function(RED) {
                     }
                 }
             }
-            if (this.credentials && this.credentials.user) {
-                opts.auth = this.credentials.user+":"+(this.credentials.password||"");
+            if (credentials && credentials.user) {
+                opts.auth = credentials.user+":"+(credentials.password||"");
             }
             var payload = null;
 
@@ -189,7 +211,9 @@ module.exports = function(RED) {
         });
     }
 
-    RED.nodes.registerType("x3 out",HTTPRequest,{
+    RED.nodes.registerType("x3 out",X3Out);
+
+    RED.nodes.registerType("x3 config",X3Config,{
         credentials: {
             user: {type:"text"},
             password: {type: "password"}

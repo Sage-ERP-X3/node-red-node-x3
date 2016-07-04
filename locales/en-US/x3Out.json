@@ -276,7 +276,9 @@
             "res": "The messages sent to this node <b>must</b> originate from an <i>http input</i> node",
             "req": "Tip: If the JSON parse fails the fetched string is returned as-is."
         },
-        "httpreq": "http request",
+        "httpreq": "X3 Out",
+        "httpconfig": "X3 Config",
+
         "errors": {
             "not-created": "Cannot create http-in node when httpNodeRoot set to false",
             "missing-path": "missing path",
