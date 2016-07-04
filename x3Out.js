@@ -48,7 +48,7 @@ module.exports = function(RED) {
             if (isTemplatedUrl) {
                 url = mustache.render(nodeUrl,msg);
             }
-            console.log("is Template", isTemplatedUrl, "url", url, "msg", msg);
+            //console.log("is Template", isTemplatedUrl, "url", url, "msg", msg);
             if (!url) {
                 node.error(RED._("httpin.errors.no-url"),msg);
                 return;
@@ -146,7 +146,7 @@ module.exports = function(RED) {
             }
             opts.headers['content-type'] = "application/json";
             opts.headers.accept = "application/json;vnd.sage=syracuse";
-            console.log("request opts", opts);
+            //console.log("request opts", opts);
             var req = ((/^https/.test(urltotest))?https:http).request(opts,function(res) {
                 (node.ret === "bin") ? res.setEncoding('binary') : res.setEncoding('utf8');
 
@@ -241,7 +241,7 @@ module.exports = function(RED) {
                                 node.status({});
                                 //
                                 // request logout 
-                                console.log("cookie logout", res.headers['set-cookie']);
+                                //console.log("cookie logout", res.headers['set-cookie']);
                                 msg.headers = {cookie: res.headers['set-cookie']};
                                 sendRequest({method: "POST", msg : msg, url: url+"/logout", headers: { cookie: res.headers['set-cookie']}});  
                             }
