@@ -260,7 +260,9 @@
     "httpin": {
         "label": {
             "method": "Method",
-            "url": "URL",
+            "baseUrl": "Base URL",
+            "endpoint" : "Endpoint",
+            "representation":"representation",
             "doc": "Docs",
             "return": "Return"
         },

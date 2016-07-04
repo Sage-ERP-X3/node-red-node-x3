@@ -26,8 +26,16 @@
         </select>
     </div>
     <div class="form-row">
-        <label for="node-input-url"><i class="fa fa-globe"></i> <span data-i18n="httpin.label.url"></span></label>
-        <input type="text" id="node-input-url" placeholder="http://">
+        <label for="node-input-baseUrl"><i class="fa fa-globe"></i> <span data-i18n="httpin.label.baseUrl"></span></label>
+        <input type="text" id="node-input-baseUrl" placeholder="http://">
+    </div>
+      <div class="form-row">
+        <label for="node-input-endpoint"><span data-i18n="httpin.label.endpoint"></span></label>
+        <input type="text" id="node-input-endpoint" placeholder="http://">
+    </div>
+      <div class="form-row">
+        <label for="node-input-represenation"><><span data-i18n="httpin.label.representation"></span></label>
+        <input type="text" id="node-input-representation" >
     </div>
     <div class="form-row">
         <label>&nbsp;</label>
@@ -84,7 +92,7 @@
 
 <script type="text/javascript">
     RED.nodes.registerType('x3 out',{
-        category: 'output',
+        category: 'function',
         color:"rgb(231, 231, 174)",
         defaults: {
             name: {value:""},
