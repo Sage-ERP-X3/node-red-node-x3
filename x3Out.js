@@ -36,14 +36,14 @@ module.exports = function(RED) {
 
         RED.nodes.createNode(this,n);
         this.x3Config = RED.nodes.getNode(n.config);
-
+        var self = this;
         var url =  this.x3Config &&  this.x3Config.url || "http://52.30.57.116:8124";
         var endpoint =  this.x3Config &&  this.x3Config.endpoint || "X3U9REF_SEED";
-        var credential =  this.x3Config &&   this.x3Config.credentials || {user:"admin",passwd:"admin"};
+        var credentials =  this.x3Config &&   this.x3Config.credentials || {user:"admin",passwd:"admin"};
         var classe = n.class;
         var representation = n.representation || classe;
 
-        var nodeUrl = url+"/x3/erp/"+endpoint+"/"+representation;
+        var nodeUrl = url+"/sdata/x3/erp/"+endpoint+"/"+representation;
 
         var isTemplatedUrl = (nodeUrl||"").indexOf("{{") != -1;
         var nodeMethod = n.method || "GET";
@@ -70,6 +70,7 @@ module.exports = function(RED) {
             if (isTemplatedUrl) {
                 url = mustache.render(nodeUrl,msg);
             }
+            console.log("is Template", isTemplatedUrl, "url", url, "msg", msg);
             if (!url) {
                 node.error(RED._("httpin.errors.no-url"),msg);
                 return;
@@ -102,8 +103,10 @@ module.exports = function(RED) {
                     }
                 }
             }
-            if (credentials && credentials.user) {
+            if (!self.cookie && credentials && credentials.user) {
                 opts.auth = credentials.user+":"+(credentials.passwd||"");
+            }else{
+                opts.headers.cookie = self.cookie;
             }
             var payload = null;
 
@@ -124,12 +127,11 @@ module.exports = function(RED) {
                     }
                 }
                 // add the key if we want to read or update
-                if( nodeMethod === "GET" || nodeMethod === "PUT" )
+/*                if( nodeMethod === "GET" || nodeMethod === "PUT" )
                     nodeUrl += "('"+payload+"')?representation="+representation+"."+(nodeMethod !== "PUT"  ? "$details": "$edit");
                 else if( nodeMethod === "POST" ){
                     nodeUrl += "?representation="+representation;
-                }
-                console.log("nodeURl "+nodeUrl);
+                }*/
                 if (opts.headers['content-length'] == null) {
                     if (Buffer.isBuffer(payload)) {
                         opts.headers['content-length'] = payload.length;
@@ -163,10 +165,16 @@ module.exports = function(RED) {
                 }
                 else { node.warn("Bad proxy url: "+process.env.http_proxy); }
             }
+            //console.log("request opts", opts);
+            opts['content-type'] = "application/json";
             var req = ((/^https/.test(urltotest))?https:http).request(opts,function(res) {
                 (node.ret === "bin") ? res.setEncoding('binary') : res.setEncoding('utf8');
+
                 msg.statusCode = res.statusCode;
                 msg.headers = res.headers;
+                if(!self.cookie )
+                    self.cookie = res.headers["set-cookie"];
+    
                 msg.payload = "";
                 // msg.url = url;   // revert when warning above finally removed
                 res.on('data',function(chunk) {
@@ -215,6 +223,7 @@ module.exports = function(RED) {
     }
 
     RED.nodes.registerType("x3 out",X3Out);
+    RED.nodes.registerType("x3 function",X3Out);
 
     RED.nodes.registerType("x3-config",X3Config,{
         credentials: {
@@ -224,12 +233,5 @@ module.exports = function(RED) {
     });
 
 
-    RED.httpAdmin.get("/endpoints", RED.auth.needsPermission("endpoints"), function(req,res) {
-       // TOOD http to syracuse
-    });
-
-
-    RED.httpAdmin.get("/representations", RED.auth.needsPermission("representations"), function(req,res) {
-        // TOOD http to syracuse
-    });
+    
 }

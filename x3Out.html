@@ -43,6 +43,35 @@
     <div class="form-tips" id="tip-json" hidden><span data-i18n="httpin.tip.req"></span></div>
 </script>
 
+<script type="text/x-red" data-template-name="x3 function">
+    <div class="form-row">
+        <label for="node-input-method"><i class="fa fa-tasks"></i> <span data-i18n="httpin.label.method"></span></label>
+        <select type="text" id="node-input-method" style="width:72%;">
+        <option value="GET">GET</option>
+        <option value="POST">POST</option>
+        <option value="PUT">PUT</option>
+        <option value="DELETE">DELETE</option>
+        <option value="use" data-i18n="httpin.setby"></option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-config"><i class="fa fa-globe"></i> <span data-i18n="mqtt.label.config"></span></label>
+        <input type="text" id="node-input-config">
+    </div>
+
+     <div class="form-row">
+        <label for="node-input-representation"><span data-i18n="httpin.label.representation"></span></label>
+        <input type="text" id="node-input-representation" >
+    </div>
+
+
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
+    </div>
+    <div class="form-tips" id="tip-json" hidden><span data-i18n="httpin.tip.req"></span></div>
+</script>
+
 <script type="text/x-red" data-template-name="x3-config">
     <div class="form-row node-input-config">
         <div class="form-row ">
@@ -129,6 +158,32 @@
         },
         inputs:1,
         outputs:0,
+        icon: "white-globe.png",
+        label: function() {
+            return this.name||this._("httpin.httpreq");
+        },
+        labelStyle: function() {
+            return this.name?"node_label_italic":"";
+        }
+
+        
+    });
+</script>
+<script type="text/javascript">
+    RED.nodes.registerType('x3 function',{
+        category: 'function',
+        color:"rgb(231, 231, 174)",
+        defaults: {
+            config:{type:"x3-config", required:true},
+            name: {value:""},
+            method:{value:"GET"},
+            representation:{value:"", required:true},
+            key:{value:""}
+            //user -> credentials
+            //pass -> credentials
+        },
+        inputs:1,
+        outputs:1,
         icon: "white-globe.png",
         label: function() {
             return this.name||this._("httpin.httpreq");
