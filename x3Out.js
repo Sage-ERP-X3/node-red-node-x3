@@ -22,11 +22,10 @@ module.exports = function(RED) {
     var mustache = require("mustache");
     var querystring = require("querystring");
 
-
+    // hard code test httprequest
 
     function X3Config(n){
         RED.nodes.createNode(this,n);
-
         this.url = n.url;
         this.endpoint = n.endpoint;
         this.credentials = n.credentials;
@@ -36,25 +35,20 @@ module.exports = function(RED) {
     function X3Out(n) {
 
         RED.nodes.createNode(this,n);
-        this.x3Config = RED.nodes.getNode(n.x3Config);
+        this.x3Config = RED.nodes.getNode(n.config);
 
-        var url = x3Config.url;
-        var endpoint = x3Config.endpoint;
-        var credential = x3Config.credentials;
-        var representation = n.representation;
+        var url =  this.x3Config &&  this.x3Config.url || "http://52.30.57.116:8124";
+        var endpoint =  this.x3Config &&  this.x3Config.endpoint || "X3U9REF_SEED";
+        var credential =  this.x3Config &&   this.x3Config.credentials || {user:"admin",passwd:"admin"};
+        var classe = n.class;
+        var representation = n.representation || classe;
 
         var nodeUrl = url+"/x3/erp/"+endpoint+"/"+representation;
 
         var isTemplatedUrl = (nodeUrl||"").indexOf("{{") != -1;
         var nodeMethod = n.method || "GET";
 
-        // add the key if we want to read or update
-        if( nodeMethod === "GET" || nodeMethod === "PUT" )
-            nodeUrl += "("+n.key+")?representation="+representation+"&"+(nodeMethod === "PUT"  ? "$details": "$edit");
-        else if( nodeMethod === "POST" ){
-            nodeUrl += "?representation="+representation;
-
-        }
+       
         this.ret = n.ret || "txt";
         if (RED.settings.httpRequestTimeout) { this.reqTimeout = parseInt(RED.settings.httpRequestTimeout) || 120000; }
         else { this.reqTimeout = 120000; }
@@ -109,11 +103,12 @@ module.exports = function(RED) {
                 }
             }
             if (credentials && credentials.user) {
-                opts.auth = credentials.user+":"+(credentials.password||"");
+                opts.auth = credentials.user+":"+(credentials.passwd||"");
             }
             var payload = null;
 
-            if (msg.payload && (method == "POST" || method == "PUT" || method == "PATCH" ) ) {
+            if (msg.payload ) {// analyse the content we can receive payload for POST, PUT or GET.
+
                 if (typeof msg.payload === "string" || Buffer.isBuffer(msg.payload)) {
                     payload = msg.payload;
                 } else if (typeof msg.payload == "number") {
@@ -128,6 +123,13 @@ module.exports = function(RED) {
                         }
                     }
                 }
+                // add the key if we want to read or update
+                if( nodeMethod === "GET" || nodeMethod === "PUT" )
+                    nodeUrl += "('"+payload+"')?representation="+representation+"."+(nodeMethod !== "PUT"  ? "$details": "$edit");
+                else if( nodeMethod === "POST" ){
+                    nodeUrl += "?representation="+representation;
+                }
+                console.log("nodeURl "+nodeUrl);
                 if (opts.headers['content-length'] == null) {
                     if (Buffer.isBuffer(payload)) {
                         opts.headers['content-length'] = payload.length;
@@ -219,5 +221,15 @@ module.exports = function(RED) {
             user: {type:"text"},
             password: {type: "password"}
         }
+    });
+
+
+    RED.httpAdmin.get("/endpoints", RED.auth.needsPermission("endpoints"), function(req,res) {
+       // TOOD http to syracuse
+    });
+
+
+    RED.httpAdmin.get("/representations", RED.auth.needsPermission("representations"), function(req,res) {
+        // TOOD http to syracuse
     });
 }
