@@ -22,6 +22,7 @@ module.exports = function(RED) {
     var mustache = require("mustache");
     var querystring = require("querystring");
 
+    console.log("test" );
     function X3Out(n) {
         RED.nodes.createNode(this,n);
         var endpoint = n.endpoint;
