@@ -1,0 +1,13 @@
+{
+	  "name": "node-red-node-x3",
+	  "description": "Node for out and in Sage X3 server ",
+	  "version": "0.1.0",
+	  "author": "The Enablers",
+	  "node-red": {
+		  "nodes": {
+			  "x3-out": "x3-out.js",
+			  "x3-in": "x3-in.js"
+
+		  }
+	  }
+}
