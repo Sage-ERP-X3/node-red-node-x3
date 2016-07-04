@@ -5,7 +5,7 @@
 	  "author": "The Enablers",
 	  "node-red": {
 		  "nodes": {
-			  "x3-out": "x3Out.js"
+			  "x3Out": "x3Out.js"
 		  }
 	  }
 }
