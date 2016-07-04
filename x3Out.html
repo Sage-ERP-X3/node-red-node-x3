@@ -92,15 +92,10 @@
         <div class="form-row">
             <label for="node-input-endpoint"><span data-i18n="httpin.label.endpoint"></span></label>
             <input type="text" id="node-input-endpoint" style="width:60%;disabled:true" placeholder="http://syracuse-server:8124">
-            <a id="node-input-lookup-endpoint" class="btn"><i id="node-input-lookup-endpoint-icon" class="fa fa-search"></i></a>
+            <a id="node-lookup-endpoint" class="btn"><i id="node-input-lookup-endpoint-icon" class="fa fa-search"></i></a>
         </div>
 
-<!--         <div class="form-row">
-            <label for="node-config-input-serialport"><i class="fa fa-random"></i> <span data-i18n="serial.label.serialport"></span></label>
-            <input type="text" id="node-config-input-serialport" style="width:60%;" data-i18n="[placeholder]serial.placeholder.serialport">
-            <a id="node-input-lookup-endpoint" class="btn"><i id="node-input-lookup-endpoint-icon" class="fa fa-search"></i></a>
-        </div>
- -->
+
         <div class="form-row node-input-useAuth-row">
             <label for="node-input-user"><i class="fa fa-user"></i> <span data-i18n="common.label.username"></span></label>
             <input type="text" id="node-input-user">
@@ -222,13 +217,12 @@
         },
         oneditprepare: function() {
             function setHeader(xhr) {
-                xhr.setRequestHeader('securityCode', 'Foo');
-                xhr.setRequestHeader('passkey', 'Bar');
+                xhr.setRequestHeader('authorization', 'Basic ' + btoa($("#node-input-user")[0].value + ':' + $("#node-input-password")[0].value));
+                xhr.setRequestHeader('accept', 'application/json');
+
             }
 
-            $("#node-input-lookup-endpoint").click(function() {
-                console.log("URL:",$("#node-input-baseUrl"));
-//debugger;
+            $("#node-lookup-endpoint").click(function() {
                 var  url = $("#node-input-baseUrl")[0].value + "/sdata/syracuse/collaboration/syracuse/endPoints?representation=endPoint.$lookup";
                 
                 $.ajax({
@@ -236,20 +230,19 @@
 	                  type: 'GET',
 	                  dataType: 'json',
 	                  success: function(data, textStatus, jqXHR) { 
-	                    console.log("data:",data);
 	                    var endpoints = [];
 	                        $.each(data.$resources, function(i, ep) {
 	                            endpoints.push(ep.dataset);
 	                        });
-	                        $("#node-input-lookup-endpoint").autocomplete({
+	                        $("#node-input-endpoint").autocomplete({
 	                            source:endpoints,
 	                            minLength:0,
 	                            close: function( event, ui ) {
-	                                $("#node-input-lookup-endpoint").autocomplete( "destroy" );
+	                                $("#node-input-endpoint").autocomplete( "destroy" );
 	                            }
 	                        }).autocomplete("search","");
 	                  },
-	                  error: function() { alert('boo!'); },
+	                  error: function(req,  status,  error) { console.log(error); },
 	                  beforeSend: setHeader
                 });  
             });
