@@ -1,3 +1,4 @@
+"use strict";
 /**
  * Copyright 2013, 2015 IBM Corp.
  *
@@ -25,10 +26,14 @@ module.exports = function(RED) {
     // hard code test httprequest
 
     function X3Config(n){
+        console.log("N:",n);
         RED.nodes.createNode(this,n);
-        this.url = n.url;
+        this.baseUrl = n.baseUrl;
         this.endpoint = n.endpoint;
-        this.credentials = n.credentials;
+        this.credentials = {
+            user: n.user,
+            passwd: n.password
+        };
     }
 
 
@@ -37,7 +42,7 @@ module.exports = function(RED) {
         RED.nodes.createNode(this,n);
         this.x3Config = RED.nodes.getNode(n.config);
         var self = this;
-        var url =  this.x3Config &&  this.x3Config.url || "http://52.30.57.116:8124";
+        var url =  this.x3Config &&  this.x3Config.baseUrl || "http://52.30.57.116:8124";
         var endpoint =  this.x3Config &&  this.x3Config.endpoint || "x3/erp/X3U9REF_SEED";
         //var endpoint =  this.x3Config &&  this.x3Config.endpoint || "syracuse/collaboration/syracuse";
         var credentials =  this.x3Config &&   this.x3Config.credentials || {user:"admin",passwd:"admin"};
@@ -238,5 +243,49 @@ module.exports = function(RED) {
     });
 
 
+
+    RED.httpAdmin.get("/representations", function(req,res) {
+        var config = req.query.config;
+
+        var cnf = RED.nodes.getNode(config);
+
+        var url = cnf.baseUrl + "/sdata/syracuse/collaboration/syracuse/representationProxies?representation=representationProxy.$lookup&count=3000&dataset=" + cnf.endpoint;
+        var opts = urllib.parse(url);
+        opts.method = 'GET';
+        opts.auth = cnf.credentials.user+":"+(cnf.credentials.passwd||"");
+        opts.headers = {
+            accept: "application/json"
+        };
+
+
+        var syrreq = http.request(opts,function(syrres) {
+            var payload = "";
+            syrres.on('data',function(chunk) {
+               // console.log("data", chunk);
+                payload += chunk;
+            });
+            syrres.on('end',function() {
+                //console.log("end");
+                try { 
+                    payload = JSON.parse(payload); 
+
+                    var reprs = [];
+                    payload.$resources && payload.$resources.forEach(function(r) {
+                        reprs.push(r.entity);
+                    });
+                    res.json(reprs);
+                } catch(e) {
+                    console.error(RED._("httpin.errors.json-error"));
+                }
+                
+                
+            });
+        });
+
+        syrreq.on('error',function(err) {
+            console.error(err.message);
+        });
+        syrreq.end();
+    });
     
-}
+};
