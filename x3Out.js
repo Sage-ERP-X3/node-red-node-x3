@@ -38,12 +38,13 @@ module.exports = function(RED) {
         this.x3Config = RED.nodes.getNode(n.config);
         var self = this;
         var url =  this.x3Config &&  this.x3Config.url || "http://52.30.57.116:8124";
-        var endpoint =  this.x3Config &&  this.x3Config.endpoint || "X3U9REF_SEED";
+        var endpoint =  this.x3Config &&  this.x3Config.endpoint || "x3/erp/X3U9REF_SEED";
+        //var endpoint =  this.x3Config &&  this.x3Config.endpoint || "syracuse/collaboration/syracuse";
         var credentials =  this.x3Config &&   this.x3Config.credentials || {user:"admin",passwd:"admin"};
         var classe = n.class;
         var representation = n.representation || classe;
 
-        var nodeUrl = url+"/sdata/x3/erp/"+endpoint+"/"+representation;
+        var nodeUrl = url+"/sdata/"+endpoint+"/"+representation;
 
         var isTemplatedUrl = (nodeUrl||"").indexOf("{{") != -1;
         var nodeMethod = n.method || "GET";
@@ -103,11 +104,12 @@ module.exports = function(RED) {
                     }
                 }
             }
-            if (!self.cookie && credentials && credentials.user) {
+            if (/*!self.cookie && */credentials && credentials.user) {
                 opts.auth = credentials.user+":"+(credentials.passwd||"");
             }else{
-                opts.headers.cookie = self.cookie;
+                //opts.headers.cookie = self.cookie;
             }
+            if (self.cookie) opts.headers.cookie = self.cookie;
             var payload = null;
 
             if (msg.payload ) {// analyse the content we can receive payload for POST, PUT or GET.
@@ -165,22 +167,25 @@ module.exports = function(RED) {
                 }
                 else { node.warn("Bad proxy url: "+process.env.http_proxy); }
             }
-            //console.log("request opts", opts);
-            opts['content-type'] = "application/json";
+            opts.headers['content-type'] = "application/json";
+            opts.headers.accept = "application/json;vnd.sage=syracuse";
+            console.log("request opts", opts);
             var req = ((/^https/.test(urltotest))?https:http).request(opts,function(res) {
                 (node.ret === "bin") ? res.setEncoding('binary') : res.setEncoding('utf8');
 
                 msg.statusCode = res.statusCode;
                 msg.headers = res.headers;
-                if(!self.cookie )
+                //if(!self.cookie )
                     self.cookie = res.headers["set-cookie"];
     
                 msg.payload = "";
                 // msg.url = url;   // revert when warning above finally removed
                 res.on('data',function(chunk) {
+                    //console.log("data", chunk);
                     msg.payload += chunk;
                 });
                 res.on('end',function() {
+                    console.log("end");
                     if (node.metric()) {
                         // Calculate request time
                         var diff = process.hrtime(preRequestTimestamp);
