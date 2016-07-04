@@ -44,10 +44,10 @@
 </script>
 
 <script type="text/x-red" data-template-name="x3-config">
-    <div class="form-row node-input-config">
+    <div class="form-row node-config-input-config">
         <div class="form-row ">
-            <label for="node-input-method"><i class="fa fa-tasks"></i> <span data-i18n="httpin.label.method"></span></label>
-            <select type="text" id="node-input-method" style="width:72%;">
+            <label for="node-config-input-method"><i class="fa fa-tasks"></i> <span data-i18n="httpin.label.method"></span></label>
+            <select type="text" id="node-config-input-method" style="width:72%;">
             <option value="GET">GET</option>
             <option value="POST">POST</option>
             <option value="PUT">PUT</option>
@@ -57,29 +57,31 @@
         </div>
 
         <div class="form-row">
-            <label for="node-input-baseUrl"><i class="fa fa-globe"></i> <span data-i18n="httpin.label.baseUrl"></span></label>
-            <input type="text" id="node-input-baseUrl" placeholder="http://">
-        </div>
-        <div class="form-row">
-            <label for="node-input-endpoint"><span data-i18n="httpin.label.endpoint"></span></label>
-            <input type="text" id="node-input-endpoint" style="width:60%;disabled:true" placeholder="http://syracuse-server:8124">
-            <a id="node-lookup-endpoint" class="btn"><i id="node-input-lookup-endpoint-icon" class="fa fa-search"></i></a>
+            <label for="node-config-input-baseUrl"><i class="fa fa-globe"></i> <span data-i18n="httpin.label.baseUrl"></span></label>
+            <input type="text" id="node-config-input-baseUrl" placeholder="http://" required="true">
         </div>
 
-
-        <div class="form-row node-input-useAuth-row">
-            <label for="node-input-user"><i class="fa fa-user"></i> <span data-i18n="common.label.username"></span></label>
-            <input type="text" id="node-input-user">
+        <div class="form-row node-config-input-useAuth-row">
+            <label for="node-config-input-user"><i class="fa fa-user"></i> <span data-i18n="common.label.username"></span></label>
+            <input type="text" id="node-config-input-user">
         </div>
-        <div class="form-row node-input-useAuth-row">
-            <label for="node-input-password"><i class="fa fa-lock"></i> <span data-i18n="common.label.password"></span></label>
-            <input type="password" id="node-input-password">
+
+        <div class="form-row node-config-input-useAuth-row">
+            <label for="node-config-input-password"><i class="fa fa-lock"></i> <span data-i18n="common.label.password"></span></label>
+            <input type="password" id="node-config-input-password">
         </div>
 
         <div class="form-row">
-            <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
-            <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
+            <label for="node-config-input-endpoint"><span data-i18n="httpin.label.endpoint"></span></label>
+            <input type="text" id="node-config-input-endpoint" style="width:60%;disabled:true">
+            <a id="node-lookup-endpoint" class="btn" disabled="true"><i id="node-config-input-lookup-endpoint-icon" class="fa fa-search"></i></a>
         </div>
+
+        <div class="form-row">
+            <label for="node-config-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
+            <input type="text" id="node-config-input-name" data-i18n="[placeholder]common.label.name">
+        </div>
+        <div class="form-tips error" id="err-json" style="background: #fff0f0;" hidden></div>
     </div>
 </script>
 
@@ -112,7 +114,7 @@
 <script type="text/javascript">
     RED.nodes.registerType('x3 out',{
         category: 'output',
-        color:"rgb(231, 231, 174)",
+        color:"rgb(0, 220, 0)",
         defaults: {
             config:{type:"x3-config", required:true},
             name: {value:""},
@@ -145,7 +147,7 @@
         defaults: {
             config:{value:"",required:true},
             name: {value:""},
-            baseUrl : {value:"http://localhost:8124"},
+            baseUrl : {value:"http://localhost:8124", required:true},
             endpoint : {value:""}
             //user -> credentials
             //pass -> credentials
@@ -162,33 +164,43 @@
         },
         oneditprepare: function() {
             function setHeader(xhr) {
-                xhr.setRequestHeader('authorization', 'Basic ' + btoa($("#node-input-user")[0].value + ':' + $("#node-input-password")[0].value));
+                xhr.setRequestHeader('authorization', 'Basic ' + btoa($("#node-config-input-user")[0].value + ':' + $("#node-config-input-password")[0].value));
                 xhr.setRequestHeader('accept', 'application/json');
 
             }
 
             $("#node-lookup-endpoint").click(function() {
-                var  url = $("#node-input-baseUrl")[0].value + "/sdata/syracuse/collaboration/syracuse/endPoints?representation=endPoint.$lookup";
+                var  url = $("#node-config-input-baseUrl")[0].value + "/sdata/syracuse/collaboration/syracuse/endPoints?representation=endPoint.$lookup";
                 
                 $.ajax({
 	                  url: url,
 	                  type: 'GET',
 	                  dataType: 'json',
 	                  success: function(data, textStatus, jqXHR) { 
+                        $("#err-json").hide();
 	                    var endpoints = [];
 	                        $.each(data.$resources, function(i, ep) {
 	                            endpoints.push(ep.dataset);
 	                        });
-	                        $("#node-input-endpoint").autocomplete({
+	                        $("#node-config-input-endpoint").autocomplete({
 	                            source:endpoints,
 	                            minLength:0,
 	                            close: function( event, ui ) {
-	                                $("#node-input-endpoint").autocomplete( "destroy" );
+	                                $("#node-config-input-endpoint").autocomplete( "destroy" );
 	                            }
 	                        }).autocomplete("search","");
 	                  },
-	                  error: function(req,  status,  error) { console.log(error); },
-	                  beforeSend: setHeader
+	                  error: function(req,  status,  error) { 
+                        if (!error) {
+                            error = {
+                                message: "an error has occurred."
+                            }
+                        }
+                        $("#err-json").html(error.message);
+                        $("#err-json").show();
+                        console.log(error); 
+                        },
+                    beforeSend: setHeader
                 });  
             });
         }
