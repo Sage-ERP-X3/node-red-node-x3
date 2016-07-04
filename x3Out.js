@@ -22,13 +22,10 @@ module.exports = function(RED) {
     var mustache = require("mustache");
     var querystring = require("querystring");
 
-    console.log("test" );
-    function X3Out(n) {
-        RED.nodes.createNode(this,n);
-        var endpoint = n.endpoint;
-        var representation = n.representation;
+    function HTTPRequest(n) {
 
-        var nodeUrl = n.baseUrl+"/"+endpoint+"/"+representation;
+        RED.nodes.createNode(this,n);
+        var nodeUrl = n.url;
         var isTemplatedUrl = (nodeUrl||"").indexOf("{{") != -1;
         var nodeMethod = n.method || "GET";
         this.ret = n.ret || "txt";
@@ -188,7 +185,7 @@ module.exports = function(RED) {
         });
     }
 
-    RED.nodes.registerType("Sage X3 out",X3Out,{
+    RED.nodes.registerType("x3 out",HTTPRequest,{
         credentials: {
             user: {type:"text"},
             password: {type: "password"}

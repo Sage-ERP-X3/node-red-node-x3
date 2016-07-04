@@ -1,15 +1,16 @@
 {
-  "name": "node-red-node-x3",
-  "description": "Node for out Sage X3 server ",
-  "version": "0.1.0",
-  "author": "The Enablers",
-  "node-red": {
-    "nodes": {
-      "x3Out": "x3Out.js"
-    }
-  },
-  "dependencies": {
-    "follow-redirects": "0.0.7",
-    "mustache": "2.2.1"
-  }
+	  "name": "node-red-node-x3",
+	  "description": "Node for out Sage X3 server ",
+	  "version": "0.1.0",
+	  "author": "The Enablers",
+	  "node-red": {
+		  "nodes": {
+			  "x3Out": "x3Out.js"
+		  }
+	  },
+	  "dependencies": {
+		  "follow-redirects": "0.0.7",
+		  "mustache": "2.2.1"
+	  }
+
 }

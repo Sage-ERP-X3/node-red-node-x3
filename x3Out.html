@@ -58,7 +58,7 @@
 </script>
 
 <script type="text/x-red" data-help-name="x3 out">
-    <p>Provides a node for making http requests.</p>
+    <p>Provides a node for making x3 outs.</p>
     <p>The URL and HTTP method can be configured in the node, if they are left blank they should be set in an incoming message on <code>msg.url</code> and <code>msg.method</code>:</p>
     <ul>
         <li><code>url</code>, if set, is used as the url of the request. Must start with http: or https:</li>
@@ -83,17 +83,14 @@
 </script>
 
 <script type="text/javascript">
-    RED.nodes.registerType('x3Out',{
+    RED.nodes.registerType('x3 out',{
         category: 'function',
         color:"rgb(231, 231, 174)",
         defaults: {
             name: {value:""},
             method:{value:"GET"},
             ret: {value:"txt"},
-            baseUrl:{value:""},
-            endpoint:{value:""},
-            representation:{value:""},
-
+            url:{value:""},
             //user -> credentials
             //pass -> credentials
         },
@@ -139,4 +136,3 @@
         }
     });
 </script>
-
