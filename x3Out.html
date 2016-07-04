@@ -84,13 +84,15 @@
 
 <script type="text/javascript">
     RED.nodes.registerType('x3 out',{
-        category: 'function',
+        category: 'output',
         color:"rgb(231, 231, 174)",
         defaults: {
             name: {value:""},
             method:{value:"GET"},
             ret: {value:"txt"},
-            url:{value:""},
+            baseUrl:{value:""},
+            endpoint:{value:""},
+            representation:{value:""}
             //user -> credentials
             //pass -> credentials
         },

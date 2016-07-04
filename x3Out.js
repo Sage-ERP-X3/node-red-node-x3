@@ -25,7 +25,11 @@ module.exports = function(RED) {
     function HTTPRequest(n) {
 
         RED.nodes.createNode(this,n);
-        var nodeUrl = n.url;
+        var url = n.url;
+        var representation = n.representation;
+        var endpoint = n.endpoint;
+
+        var nodeUrl = url+"/x3/erp/"+endpoint+"/"+representation;
         var isTemplatedUrl = (nodeUrl||"").indexOf("{{") != -1;
         var nodeMethod = n.method || "GET";
         this.ret = n.ret || "txt";
