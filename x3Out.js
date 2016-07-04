@@ -31,7 +31,8 @@ module.exports = function(RED) {
         this.endpoint = n.endpoint;
         this.credentials = n.credentials;
     }
-    
+
+
     function X3Out(n) {
 
         RED.nodes.createNode(this,n);
@@ -213,7 +214,7 @@ module.exports = function(RED) {
 
     RED.nodes.registerType("x3 out",X3Out);
 
-    RED.nodes.registerType("x3 config",X3Config,{
+    RED.nodes.registerType("x3-config",X3Config,{
         credentials: {
             user: {type:"text"},
             password: {type: "password"}

@@ -31,7 +31,7 @@
     </div>
 
      <div class="form-row">
-        <label for="node-input-represenation"><><span data-i18n="httpin.label.representation"></span></label>
+        <label for="node-input-represenation"><span data-i18n="httpin.label.representation"></span></label>
         <input type="text" id="node-input-representation" >
     </div>
 
@@ -43,7 +43,7 @@
     <div class="form-tips" id="tip-json" hidden><span data-i18n="httpin.tip.req"></span></div>
 </script>
 
-<script type="text/x-red" data-template-name="x3 config">
+<script type="text/x-red" data-template-name="x3-config">
     <div class="form-row node-input-config">
         <div class="form-row ">
             <label for="node-input-method"><i class="fa fa-tasks"></i> <span data-i18n="httpin.label.method"></span></label>
@@ -63,10 +63,7 @@
             <label for="node-input-endpoint"><span data-i18n="httpin.label.endpoint"></span></label>
             <input type="text" id="node-input-endpoint" placeholder="http://">
         </div>
-          <div class="form-row">
-            <label for="node-input-represenation"><><span data-i18n="httpin.label.representation"></span></label>
-            <input type="text" id="node-input-representation" >
-        </div>
+
         <div class="form-row node-input-useAuth-row">
             <label for="node-input-user"><i class="fa fa-user"></i> <span data-i18n="common.label.username"></span></label>
             <input type="text" id="node-input-user">
@@ -80,7 +77,6 @@
             <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
             <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
         </div>
-        <div class="form-tips" id="tip-json" hidden><span data-i18n="httpin.tip.req"></span></div>
     </div>
 </script>
 
@@ -115,9 +111,11 @@
         category: 'output',
         color:"rgb(231, 231, 174)",
         defaults: {
+            config:{type:"x3-config", required:true},
             name: {value:""},
             method:{value:"GET"},
-            representation:{value:""}
+            representation:{value:"", required:true},
+            key:{value:""}
             //user -> credentials
             //pass -> credentials
         },
@@ -139,10 +137,11 @@
 
 
 <script type="text/javascript">
-    RED.nodes.registerType('x3 config',{
+    RED.nodes.registerType('x3-config',{
         category: 'config',
         color:"rgb(231, 231, 174)",
         defaults: {
+            config:{value:"",required:true},
             name: {value:""},
             baseUrl : {value:""},
             endpoint : {value:""}
