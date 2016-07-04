@@ -177,26 +177,27 @@
                 var  url = $("#node-input-baseUrl")[0].value + "/sdata/syracuse/collaboration/syracuse/endPoints?representation=endPoint.$lookup";
                 
                 $.ajax({
-                  url: url,
-                  type: 'GET',
-                  dataType: 'json',
-                  success: function(data, textStatus, jqXHR) { 
-                    console.log("data:",data);
-                    var endpoints = [];
-                        $.each(data.$resources, function(i, ep) {
-                            endpoints.push(ep.dataset);
-                        });
-                        $("#node-input-lookup-endpoint").autocomplete({
-                            source:endpoints,
-                            minLength:0,
-                            close: function( event, ui ) {
-                                $("#node-input-lookup-endpoint").autocomplete( "destroy" );
-                            }
-                        }).autocomplete("search","");
-                  },
-                  error: function() { alert('boo!'); },
-                  beforeSend: setHeader
-                });            
-        });
+	                  url: url,
+	                  type: 'GET',
+	                  dataType: 'json',
+	                  success: function(data, textStatus, jqXHR) { 
+	                    console.log("data:",data);
+	                    var endpoints = [];
+	                        $.each(data.$resources, function(i, ep) {
+	                            endpoints.push(ep.dataset);
+	                        });
+	                        $("#node-input-lookup-endpoint").autocomplete({
+	                            source:endpoints,
+	                            minLength:0,
+	                            close: function( event, ui ) {
+	                                $("#node-input-lookup-endpoint").autocomplete( "destroy" );
+	                            }
+	                        }).autocomplete("search","");
+	                  },
+	                  error: function() { alert('boo!'); },
+	                  beforeSend: setHeader
+                });  
+            });
+        }
     });
 </script>
