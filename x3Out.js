@@ -196,12 +196,19 @@ module.exports = function(RED) {
                             node.metric("size.bytes", msg, res.client.bytesRead);
                         }
                     }
-                    if (node.ret === "bin") {
+                    /*if (node.ret === "bin") {
                         msg.payload = new Buffer(msg.payload,"binary");
                     }
                     else if (node.ret === "obj") {
                         try { msg.payload = JSON.parse(msg.payload); }
                         catch(e) { node.warn(RED._("httpin.errors.json-error")); }
+                    }*/
+                    console.log("data", msg.payload);
+                    if ((res.headers['content-type'] || "").indexOf("application/json") != -1) {
+                        try { msg.payload = JSON.parse(msg.payload); }
+                        catch(e) { node.warn(RED._("httpin.errors.json-error")); }
+                    } else if (node.ret === "bin") {
+                        msg.payload = new Buffer(msg.payload,"binary");
                     }
                     node.send(msg);
                     node.status({});
