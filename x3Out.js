@@ -26,7 +26,7 @@ module.exports = function(RED) {
     // hard code test httprequest
 
     function X3Config(n){
-        console.log("N:",n);
+        //console.log("N:",n);
         RED.nodes.createNode(this,n);
         this.baseUrl = n.baseUrl;
         this.endpoint = n.endpoint;
@@ -54,7 +54,7 @@ module.exports = function(RED) {
             if (isTemplatedUrl) {
                 url = mustache.render(nodeUrl,msg);
             }
-            console.log("is Template", isTemplatedUrl, "url", url, "msg", msg);
+            //console.log("is Template", isTemplatedUrl, "url", url, "msg", msg);
             if (!url) {
                 node.error(RED._("httpin.errors.no-url"),msg);
                 return;
@@ -64,8 +64,8 @@ module.exports = function(RED) {
                 url = "http://"+url;
             }
 
-            var crud = opt.method && opt.method.toUpperCase() || "GET";
-
+            var opts = urllib.parse(url);
+            var crud = opt.method && opt.method.toUpperCase() || "READ";
             switch(crud) {
                 case 'CREATE':
                     opts.method = "POST";
@@ -77,7 +77,6 @@ module.exports = function(RED) {
                     opts.method = "GET";
                     break;
             }
-            var opts = urllib.parse(url);
             opts.headers = {};
             if (msg.headers) {
                 for (var v in msg.headers) {
@@ -287,7 +286,7 @@ module.exports = function(RED) {
 
         var cnf = RED.nodes.getNode(config);
 
-        var url = cnf.baseUrl + "/sdata/syracuse/collaboration/syracuse/representationProxies?representation=representationProxy.$lookup&count=3000&dataset=" + cnf.endpoint;
+        var url = cnf.baseUrl + "/sdata/syracuse/collaboration/syracuse/representationProxies?representation=representationProxy.$lookup&count=3000&dataset=" + cnf.endpoint.split('/')[2];
         var opts = urllib.parse(url);
         opts.method = 'GET';
         opts.auth = cnf.credentials.user+":"+(cnf.credentials.passwd||"");
@@ -295,7 +294,7 @@ module.exports = function(RED) {
             accept: "application/json"
         };
 
-
+        //console.log("opts", opts);
         var syrreq = http.request(opts,function(syrres) {
             var payload = "";
             syrres.on('data',function(chunk) {
@@ -313,7 +312,7 @@ module.exports = function(RED) {
                     });
                     res.json(reprs);
                 } catch(e) {
-                    console.error(RED._("httpin.errors.json-error"));
+                    node.warn(RED._("httpin.errors.json-error"));
                 }
                 
                 
@@ -321,7 +320,7 @@ module.exports = function(RED) {
         });
 
         syrreq.on('error',function(err) {
-            console.error(err.message);
+            node.warn(RED._("httpin.errors.json-error"));
         });
         syrreq.end();
     });
