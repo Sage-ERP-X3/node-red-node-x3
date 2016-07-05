@@ -85,7 +85,7 @@ module.exports = function(RED) {
             if (isTemplatedUrl) {
                 url = mustache.render(nodeUrl,msg);
             }
-            //console.log("is Template", isTemplatedUrl, "url", url, "msg", msg);
+            console.log("is Template", isTemplatedUrl, "url", url, "msg", msg);
             if (!url) {
                 node.error(RED._("httpin.errors.no-url"),msg);
                 return;
