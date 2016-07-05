@@ -262,7 +262,9 @@
             "method": "Method",
             "baseUrl": "Base URL",
             "endpoint" : "Endpoint",
-            "representation":"representation",
+            "representation":"Representation",
+            "key":"Key",
+            "facet":"Facet",
             "doc": "Docs",
             "return": "Return"
         },

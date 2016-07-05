@@ -64,15 +64,20 @@ module.exports = function(RED) {
                 url = "http://"+url;
             }
 
-            var method = opt.method && opt.method.toUpperCase() || "GET";
-            if (msg.method && n.method && (n.method !== "use")) {     // warn if override option not set
-                node.warn(RED._("common.errors.nooverride"));
-            }
-            if (msg.method && n.method && (n.method === "use")) {
-                method = msg.method.toUpperCase();          // use the msg parameter
+            var crud = opt.method && opt.method.toUpperCase() || "GET";
+
+            switch(crud) {
+                case 'CREATE':
+                    opts.method = "POST";
+                    break;
+                case 'UPDATE':
+                    opts.method = "PUT";
+                    break;
+                default: 
+                    opts.method = "GET";
+                    break;
             }
             var opts = urllib.parse(url);
-            opts.method = method;
             opts.headers = {};
             if (msg.headers) {
                 for (var v in msg.headers) {
@@ -192,7 +197,7 @@ module.exports = function(RED) {
         this.x3Config = RED.nodes.getNode(n.config);
         var self = this;
 
-        var url =  this.x3Config &&  this.x3Config.baseUrl || "http://52.30.57.116:8124";
+        var baseUrl =  this.x3Config &&  this.x3Config.baseUrl || "http://52.30.57.116:8124";
         //var url =  this.x3Config &&  this.x3Config.url || "http://52.30.57.116:8124";
 
         var endpoint =  this.x3Config &&  this.x3Config.endpoint || "x3/erp/X3U9REF_SEED";
@@ -200,10 +205,22 @@ module.exports = function(RED) {
         var credentials =  this.x3Config &&   this.x3Config.credentials || {user:"admin",passwd:"admin"};
         var classe = n.class;
         var representation = n.representation || classe;
-
+        var keyWhere = n.key;
+        var facet = n.facet;
 
         var nodeMethod = n.method || "GET";
 
+        var url;
+        switch(facet) {
+            case "details":
+            case "edit":
+                url = baseUrl+"/sdata/"+endpoint+"/"+representation + "('"+keyWhere+"')?representation=" + representation + ".$" + facet;
+                break;
+           default:
+                url = baseUrl+"/sdata/"+endpoint+"/"+representation + "?representation=" + representation + ".$" + facet;
+                if (keyWhere) url += "&where=("+keyWhere+")";
+                break;
+        }
        
         this.ret = n.ret || "txt";
         if (RED.settings.httpRequestTimeout) { this.reqTimeout = parseInt(RED.settings.httpRequestTimeout) || 120000; }
@@ -220,7 +237,7 @@ module.exports = function(RED) {
             // request to X3
             sendRequest({method: nodeMethod, 
                          msg : msg, 
-                         url: url+"/sdata/"+endpoint+"/"+representation,
+                         url: url,
                          handlerEnd:function(res) {
                                 if (node.metric()) {
                                     // Calculate request time
