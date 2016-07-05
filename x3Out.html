@@ -18,11 +18,9 @@
     <div class="form-row">
         <label for="node-input-method"><i class="fa fa-tasks"></i> <span data-i18n="httpin.label.method"></span></label>
         <select type="text" id="node-input-method" style="width:72%;">
-        <option value="GET">GET</option>
-        <option value="POST">POST</option>
-        <option value="PUT">PUT</option>
-        <option value="DELETE">DELETE</option>
-        <option value="use" data-i18n="httpin.setby"></option>
+        <option value="READ">GET</option>
+        <option value="CREATE">POST</option>
+        <option value="UPDATE">PUT</option>
         </select>
     </div>
     <div class="form-row">
@@ -31,11 +29,24 @@
     </div>
 
      <div class="form-row">
-        <label for="node-input-represenation"><span data-i18n="httpin.label.representation"></span></label>
+        <label for="node-input-representation"><span data-i18n="httpin.label.representation"></span></label>
         <input type="text" id="node-input-representation" style="width:60%">
         <a id="node-lookup-representation" class="btn" disabled="true"><i id="node-config-input-lookup-representation-icon" class="fa fa-search"></i></a>
     </div>
 
+     <div class="form-row">
+        <label for="node-input-facet"><i class="fa fa-tasks"></i> <span data-i18n="httpin.label.facet"></span></label>
+        <select type="text" id="node-input-facet" style="width:72%;">
+            <option value="query">$query</option>
+            <option value="details">$details</option>
+            <option value="edit">$edit</option>
+        </select>
+    </div>
+
+     <div class="form-row">
+        <label for="node-input-key"><span data-i18n="httpin.label.key"></span></label>
+        <input type="text" id="node-input-key">
+    </div>
 
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
@@ -48,13 +59,12 @@
     <div class="form-row">
         <label for="node-input-method"><i class="fa fa-tasks"></i> <span data-i18n="httpin.label.method"></span></label>
         <select type="text" id="node-input-method" style="width:72%;">
-        <option value="GET">GET</option>
-        <option value="POST">POST</option>
-        <option value="PUT">PUT</option>
-        <option value="DELETE">DELETE</option>
-        <option value="use" data-i18n="httpin.setby"></option>
+        <option value="READ">READ</option>
+        <option value="CREATE">CREATE</option>
+        <option value="UPDATE">UPDATE</option>
         </select>
     </div>
+
     <div class="form-row">
         <label for="node-input-config"><i class="fa fa-globe"></i> <span data-i18n="mqtt.label.config"></span></label>
         <input type="text" id="node-input-config">
@@ -62,7 +72,22 @@
 
      <div class="form-row">
         <label for="node-input-representation"><span data-i18n="httpin.label.representation"></span></label>
-        <input type="text" id="node-input-representation" >
+        <input type="text" id="node-input-representation" style="width:60%">
+        <a id="node-lookup-representation" class="btn" ><i id="node-config-input-lookup-representation-icon" class="fa fa-search"></i></a>
+    </div>
+
+     <div class="form-row">
+        <label for="node-input-facet"><i class="fa fa-tasks"></i> <span data-i18n="httpin.label.facet"></span></label>
+        <select type="text" id="node-input-facet" style="width:72%;">
+            <option value="query">$query</option>
+            <option value="details">$details</option>
+            <option value="edit">$edit</option>
+        </select>
+    </div>
+
+     <div class="form-row">
+        <label for="node-input-key"><span data-i18n="httpin.label.key"></span></label>
+        <input type="text" id="node-input-key">
     </div>
 
     <div class="form-row">
@@ -140,7 +165,8 @@
             name: {value:""},
             method:{value:"GET"},
             representation:{value:"", required:true},
-            key:{value:""}
+            key:{value:""},
+            facet:{value:"$query"}
             //user -> credentials
             //pass -> credentials
         },
@@ -160,6 +186,7 @@
 
             }
             $("#node-lookup-representation").click(function() {
+               // debugger;
                 $.getJSON('representations?config=' + $("#node-input-config")[0].value,function(data) {
                     console.log("data:",data);
                         $("#node-input-representation").autocomplete({
@@ -177,13 +204,14 @@
 <script type="text/javascript">
     RED.nodes.registerType('x3 function',{
         category: 'function',
-        color:"rgb(231, 231, 174)",
+        color:"rgb(0, 220, 0)",
         defaults: {
             config:{type:"x3-config", required:true},
             name: {value:""},
             method:{value:"GET"},
             representation:{value:"", required:true},
-            key:{value:""}
+            key:{value:""},
+            facet:{value:"$query"}
            
         },
         inputs:1,
@@ -194,8 +222,27 @@
         },
         labelStyle: function() {
             return this.name?"node_label_italic":"";
-        }
+        },
+        oneditprepare: function() {
+            function setHeader(xhr) {
+                xhr.setRequestHeader('authorization', 'Basic ' + btoa($("#node-config-input-user")[0].value + ':' + $("#node-config-input-password")[0].value));
+                xhr.setRequestHeader('accept', 'application/json');
 
+            }
+            $("#node-lookup-representation").click(function() {
+               // debugger;
+                $.getJSON('representations?config=' + $("#node-input-config")[0].value,function(data) {
+                    console.log("data:",data);
+                        $("#node-input-representation").autocomplete({
+                            source:data,
+                            minLength:0,
+                            close: function( event, ui ) {
+                                $("#node-input-representation").autocomplete( "destroy" );
+                            }
+                        }).autocomplete("search","");
+                });
+            });
+        }
         
     });
 </script>
@@ -242,7 +289,7 @@
                         $("#err-json").hide();
 	                    var endpoints = [];
 	                        $.each(data.$resources, function(i, ep) {
-	                            endpoints.push(ep.dataset);
+	                            endpoints.push(ep.application + "/" + ep.contract + "/" + ep.dataset);
 	                        });
 	                        $("#node-config-input-endpoint").autocomplete({
 	                            source:endpoints,
