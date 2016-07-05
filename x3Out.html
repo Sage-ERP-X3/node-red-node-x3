@@ -32,7 +32,8 @@
 
      <div class="form-row">
         <label for="node-input-represenation"><span data-i18n="httpin.label.representation"></span></label>
-        <input type="text" id="node-input-representation" >
+        <input type="text" id="node-input-representation" style="width:60%">
+        <a id="node-lookup-representation" class="btn" disabled="true"><i id="node-config-input-lookup-representation-icon" class="fa fa-search"></i></a>
     </div>
 
 
@@ -64,26 +65,16 @@
         <input type="text" id="node-input-representation" >
     </div>
 
-
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
         <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
     </div>
+
     <div class="form-tips" id="tip-json" hidden><span data-i18n="httpin.tip.req"></span></div>
 </script>
 
 <script type="text/x-red" data-template-name="x3-config">
     <div class="form-row node-config-input-config">
-        <div class="form-row ">
-            <label for="node-config-input-method"><i class="fa fa-tasks"></i> <span data-i18n="httpin.label.method"></span></label>
-            <select type="text" id="node-config-input-method" style="width:72%;">
-            <option value="GET">GET</option>
-            <option value="POST">POST</option>
-            <option value="PUT">PUT</option>
-            <option value="DELETE">DELETE</option>
-            <option value="use" data-i18n="httpin.setby"></option>
-            </select>
-        </div>
 
         <div class="form-row">
             <label for="node-config-input-baseUrl"><i class="fa fa-globe"></i> <span data-i18n="httpin.label.baseUrl"></span></label>
@@ -161,9 +152,26 @@
         },
         labelStyle: function() {
             return this.name?"node_label_italic":"";
-        }
+        },
+        oneditprepare: function() {
+            function setHeader(xhr) {
+                xhr.setRequestHeader('authorization', 'Basic ' + btoa($("#node-config-input-user")[0].value + ':' + $("#node-config-input-password")[0].value));
+                xhr.setRequestHeader('accept', 'application/json');
 
-        
+            }
+            $("#node-lookup-representation").click(function() {
+                $.getJSON('representations?config=' + $("#node-input-config")[0].value,function(data) {
+                    console.log("data:",data);
+                        $("#node-input-representation").autocomplete({
+                            source:data,
+                            minLength:0,
+                            close: function( event, ui ) {
+                                $("#node-input-representation").autocomplete( "destroy" );
+                            }
+                        }).autocomplete("search","");
+                });
+            });
+        }
     });
 </script>
 <script type="text/javascript">
@@ -176,8 +184,7 @@
             method:{value:"GET"},
             representation:{value:"", required:true},
             key:{value:""}
-            //user -> credentials
-            //pass -> credentials
+           
         },
         inputs:1,
         outputs:1,
@@ -203,9 +210,9 @@
             config:{value:"",required:true},
             name: {value:""},
             baseUrl : {value:"http://localhost:8124", required:true},
-            endpoint : {value:""}
-            //user -> credentials
-            //pass -> credentials
+            endpoint : {value:""},
+            user: {value:"", required:true},
+            password: {value:"", required:true}
         },
         credentials: {
             user: {type:"text"},
