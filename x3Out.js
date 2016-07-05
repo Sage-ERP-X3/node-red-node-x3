@@ -39,43 +39,12 @@ module.exports = function(RED) {
 
     function X3Out(n) {
 
-// <<<<<<< HEAD
-//         RED.nodes.createNode(this,n);
-//         this.x3Config = RED.nodes.getNode(n.config);
-//         var self = this;
-//         var url =  this.x3Config &&  this.x3Config.baseUrl || "http://52.30.57.116:8124";
-//         var endpoint =  this.x3Config &&  this.x3Config.endpoint || "x3/erp/X3U9REF_SEED";
-//         //var endpoint =  this.x3Config &&  this.x3Config.endpoint || "syracuse/collaboration/syracuse";
-//         var credentials =  this.x3Config &&   this.x3Config.credentials || {user:"admin",passwd:"admin"};
-//         var classe = n.class;
-//         var representation = n.representation || classe;
-
-//         var nodeUrl = url+"/sdata/"+endpoint+"/"+representation;
-
-//         var isTemplatedUrl = (nodeUrl||"").indexOf("{{") != -1;
-//         var nodeMethod = n.method || "GET";
-
-       
-//         this.ret = n.ret || "txt";
-//         if (RED.settings.httpRequestTimeout) { this.reqTimeout = parseInt(RED.settings.httpRequestTimeout) || 120000; }
-//         else { this.reqTimeout = 120000; }
-//         var node = this;
-
-//         var prox, noprox;
-//         if (process.env.http_proxy != null) { prox = process.env.http_proxy; }
-//         if (process.env.HTTP_PROXY != null) { prox = process.env.HTTP_PROXY; }
-//         if (process.env.no_proxy != null) { noprox = process.env.no_proxy.split(","); }
-//         if (process.env.NO_PROXY != null) { noprox = process.env.NO_PROXY.split(","); }
-
-//         this.on("input",function(msg) {
-// =======
         function sendRequest(opt) {
             var msg = opt.msg;
 
             var nodeUrl = opt.url;
             var isTemplatedUrl = (nodeUrl||"").indexOf("{{") != -1;
             var handlerEnd = opt.handlerEnd || function(){  msg.payload = null };
-//>>>>>>> 657748ef2f20511e7eec9ce1709617eed1001466
             var preRequestTimestamp = process.hrtime();
             node.status({fill:"blue",shape:"dot",text:"httpin.status.requesting"});
             var url = nodeUrl || msg.url;
@@ -225,7 +194,7 @@ module.exports = function(RED) {
 
         var url =  this.x3Config &&  this.x3Config.baseUrl || "http://52.30.57.116:8124";
         //var url =  this.x3Config &&  this.x3Config.url || "http://52.30.57.116:8124";
-        
+
         var endpoint =  this.x3Config &&  this.x3Config.endpoint || "x3/erp/X3U9REF_SEED";
         //var endpoint =  this.x3Config &&  this.x3Config.endpoint || "syracuse/collaboration/syracuse";
         var credentials =  this.x3Config &&   this.x3Config.credentials || {user:"admin",passwd:"admin"};
@@ -263,13 +232,7 @@ module.exports = function(RED) {
                                         node.metric("size.bytes", msg, res.client.bytesRead);
                                     }
                                 }
-                                /*if (node.ret === "bin") {
-                                    msg.payload = new Buffer(msg.payload,"binary");
-                                }
-                                else if (node.ret === "obj") {
-                                    try { msg.payload = JSON.parse(msg.payload); }
-                                    catch(e) { node.warn(RED._("httpin.errors.json-error")); }
-                                }*/
+
                                 //console.log("data", msg.payload);
                                 if ((res.headers['content-type'] || "").indexOf("application/json") != -1) {
                                     try { msg.payload = JSON.parse(msg.payload); }
@@ -326,7 +289,7 @@ module.exports = function(RED) {
                 //console.log("end");
                 try { 
                     payload = JSON.parse(payload); 
-
+                    //console.log("Payload: "+JSON.stringify(payload,null,2));
                     var reprs = [];
                     payload.$resources && payload.$resources.forEach(function(r) {
                         reprs.push(r.entity);
