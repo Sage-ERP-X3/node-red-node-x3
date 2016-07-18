@@ -261,8 +261,9 @@ module.exports = function(RED) {
                                 //
                                 // request logout 
                                 //console.log("cookie logout", res.headers['set-cookie']);
-                                msg.headers = {cookie: res.headers['set-cookie']};
-                                sendRequest({method: "POST", msg : msg, url: url+"/logout", headers: { cookie: res.headers['set-cookie']}});  
+                                var hh = res.headers['set-cookie'] ? {cookie: res.headers['set-cookie']} : {};
+                                msg.headers = hh;
+                                sendRequest({method: "POST", msg : msg, url: url+"/logout", headers: hh});  
                             }
                         });
 
