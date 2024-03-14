@@ -9,7 +9,7 @@
 		  }
 	  },
 	  "dependencies": {
-		  "follow-redirects": "0.0.7",
+		  "follow-redirects": "1.15.6",
 		  "mustache": "2.2.1"
 	  }
 
